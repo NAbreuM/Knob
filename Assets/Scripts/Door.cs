@@ -2,88 +2,83 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Door : MonoBehaviour {
+public class Door : MonoBehaviour
+{
 
-    public GameObject[] roomsToRotate;
-    public Vector3 rotationAngle;
+    //Auxiliary Gameobject to help rotation by parenting everything below it
     public GameObject rotationHelper;
-    public GameObject correspondingDoor;
+
+    //Walls this Door is currently attached to
+    public GameObject[] currentWalls = new GameObject[2];
+
+    //Gap between doors
+    public float doorGapX;
+    public float doorGapY;
 
     // Use this for initialization
     void Start () {
-		
-	}
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
 
-    public void RotateRooms()
+    }
+
+    public void AddRoomsToParent(Room roomToAdd, Room playerCurrentRoom)
     {
-        if (transform.position == correspondingDoor.transform.position)
+        if (!roomToAdd.transform.IsChildOf(rotationHelper.transform))
         {
-            rotationHelper.transform.position = transform.position;
-            for (int i = 0; i < roomsToRotate.Length; i++)
+            roomToAdd.transform.SetParent(rotationHelper.transform);
+            for (int i=0; i<roomToAdd.connections.Count; i++)
             {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform);
+                if (roomToAdd.connections[i] != playerCurrentRoom)
+                {
+                    AddRoomsToParent(roomToAdd.connections[i], playerCurrentRoom);
+                }
             }
-            rotationHelper.transform.Rotate(rotationAngle);
-            for (int i = 0; i < roomsToRotate.Length; i++)
+
+            for (int i = 0; i < roomToAdd.doors.Count; i++)
             {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform.parent);
+                if (!playerCurrentRoom.doors.Contains(roomToAdd.doors[i]))
+                {
+                    roomToAdd.doors[i].transform.SetParent(rotationHelper.transform);
+                }
             }
         }
     }
 
-    public void RotateRoom()
+    public void RotateRooms(Room playerCurrentRoom)
     {
-        if (transform.position == correspondingDoor.transform.position)
+        if (!rotationHelper.transform.GetComponent<RotationHelper>().rotating)
         {
             rotationHelper.transform.position = transform.position;
-            for (int i = 0; i < 1; i++)
+
+            if (currentWalls[0].transform.parent.GetComponent<Room>() != playerCurrentRoom)
             {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform);
+                AddRoomsToParent(currentWalls[0].transform.parent.GetComponent<Room>(), playerCurrentRoom);
             }
-            rotationHelper.transform.Rotate(rotationAngle);
-            for (int i = 0; i < 1; i++)
+            else
             {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform.parent);
+                AddRoomsToParent(currentWalls[1].transform.parent.GetComponent<Room>(), playerCurrentRoom);
             }
+
+            rotationHelper.transform.GetComponent<RotationHelper>().StartRotating(this.transform.up);
         }
     }
 
     public void MirrorRooms()
     {
-        if (transform.position == correspondingDoor.transform.position)
-        {
-            rotationHelper.transform.position = transform.position;
-            for (int i = 0; i < roomsToRotate.Length; i++)
-            {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform);
-            }
-            rotationHelper.transform.localScale = new Vector3(rotationHelper.transform.localScale.x * -1, rotationHelper.transform.localScale.y, rotationHelper.transform.localScale.z);
-            for (int i = 0; i < roomsToRotate.Length; i++)
-            {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform.parent);
-            }
-        }
-    }
+        /*rotationHelper.transform.position = transform.position;
 
-    public void MirrorRoom()
-    {
-        if (transform.position == correspondingDoor.transform.position)
+        for (int i = 0; i < rotateableObjects.Length; i++)
         {
-            rotationHelper.transform.position = transform.position;
-            for (int i = 0; i < 1; i++)
-            {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform);
-            }
-            rotationHelper.transform.localScale = new Vector3(rotationHelper.transform.localScale.x * -1, rotationHelper.transform.localScale.y, rotationHelper.transform.localScale.z);
-            for (int i = 0; i < 1; i++)
-            {
-                roomsToRotate[i].transform.SetParent(rotationHelper.transform.parent);
-            }
+            rotateableObjects[i].transform.SetParent(rotationHelper.transform);
         }
+        new Vector3(rotationHelper.transform.localScale.x* -1, rotationHelper.transform.localScale.y, rotationHelper.transform.localScale.z);
+        for (int i = 0; i < rotateableObjects.Length; i++)
+        {
+            rotateableObjects[i].transform.SetParent(rotationHelper.transform.parent);
+        }*/
     }
 }
