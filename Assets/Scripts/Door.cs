@@ -15,16 +15,19 @@ public class Door : MonoBehaviour
     public float doorGapX;
     public float doorGapY;
 
-    // Use this for initialization
+    
     void Start () {
 
     }
 	
-	// Update is called once per frame
+	
 	void Update () {
 
     }
 
+
+    //This function recursively adds all of the rooms connected to the room passed to it to a GameObject that will be used as an auxiliar to rotate/mirror all of the rooms together.
+    //Every time a new connection is found, this function is recursively called with the new room, looking for new connections to call the function with.
     public void AddRoomsToParent(Room roomToAdd, Room playerCurrentRoom)
     {
         if (!roomToAdd.transform.IsChildOf(rotationHelper.transform))
@@ -48,6 +51,9 @@ public class Door : MonoBehaviour
         }
     }
 
+
+    //Grabs an auxiliary empty GameObject that will be used as a container for all rooms that need to be rotated and places it right at the door so that the rotation can happen at the door.
+    //Calls the AddRoomsToParent function with the original room that should be rotated (the one right behind the door).
     public void RotateRooms(Room playerCurrentRoom)
     {
         if (!rotationHelper.transform.GetComponent<RotationHelper>().rotating)
@@ -67,18 +73,24 @@ public class Door : MonoBehaviour
         }
     }
 
-    public void MirrorRooms()
-    {
-        /*rotationHelper.transform.position = transform.position;
 
-        for (int i = 0; i < rotateableObjects.Length; i++)
+    //Same as RotateRooms only it calls the StartMirroring function instead of the StartRotating inside the RotationHelper.cs
+    public void MirrorRooms(Room playerCurrentRoom)
+    {
+        if (!rotationHelper.transform.GetComponent<RotationHelper>().rotating)
         {
-            rotateableObjects[i].transform.SetParent(rotationHelper.transform);
+            rotationHelper.transform.position = transform.position;
+
+            if (currentWalls[0].transform.parent.GetComponent<Room>() != playerCurrentRoom)
+            {
+                AddRoomsToParent(currentWalls[0].transform.parent.GetComponent<Room>(), playerCurrentRoom);
+            }
+            else
+            {
+                AddRoomsToParent(currentWalls[1].transform.parent.GetComponent<Room>(), playerCurrentRoom);
+            }
+
+            rotationHelper.transform.GetComponent<RotationHelper>().StartMirroring();
         }
-        new Vector3(rotationHelper.transform.localScale.x* -1, rotationHelper.transform.localScale.y, rotationHelper.transform.localScale.z);
-        for (int i = 0; i < rotateableObjects.Length; i++)
-        {
-            rotateableObjects[i].transform.SetParent(rotationHelper.transform.parent);
-        }*/
     }
 }

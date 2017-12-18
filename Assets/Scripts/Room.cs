@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class Room : MonoBehaviour {
 
+    //List of other rooms that are connected via a door to this room.
     public List<Room> connections;
+
+    //List of doors present inside this room.
     public List<Door> doors;
 
-	// Use this for initialization
+	
 	void Start () {
 		
 	}
 	
-	// Update is called once per frame
+	
 	void Update () {
 		
 	}

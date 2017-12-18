@@ -7,7 +7,11 @@ public class MovementController : MonoBehaviour {
     //Currently Held Door Knobs
     List<Door> DoorKnobs = new List<Door>();
 
+    public LineRenderer lineRenderer;
+
     public Room currentRoom;
+
+    float distanceToInteract = 7.5f;
 
 	// Use this for initialization
 	void Start () {
@@ -17,7 +21,7 @@ public class MovementController : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        //Basic Movement (WASD for Moving, Arrow Keys for Camera)
+        //Basic Movement - Read Inputs from player and change his position accordingly (WASD for Moving, Arrow Keys for Camera)
         {
             if (Input.GetKey(KeyCode.S))
             {
@@ -63,6 +67,7 @@ public class MovementController : MonoBehaviour {
 
 
         //Place Door on Specific Spot on Wall
+        //Raycast forward. If a Wall object is hit and the player currently has a Door object held, hide the wall from the player and place the door at the location of the Raycast hit (a lot of math involved for this to look "right").
         {
             if (Input.GetKeyDown(KeyCode.P))
             {
@@ -70,9 +75,9 @@ public class MovementController : MonoBehaviour {
                 {
                     RaycastHit[] hit;
 
-                    hit = Physics.RaycastAll(transform.position, transform.GetChild(0).forward, 10.0f);
+                    hit = Physics.RaycastAll(transform.position, transform.GetChild(0).forward, distanceToInteract);
 
-                    Debug.DrawRay(transform.position, transform.GetChild(0).forward * 100, Color.green, 5);
+                    DrawLineRenderer(Color.green);
 
                     if (hit.Length > 0 && hit[0].transform.tag == "WallDoor")
                     {
@@ -98,16 +103,16 @@ public class MovementController : MonoBehaviour {
                             if (DoorKnobs[DoorKnobs.Count - 1].transform.eulerAngles.z % 180 == 0)
                             {
                                 DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localScale = new Vector3(hit[0].transform.localScale.x, hit[0].transform.localScale.y, (hit[0].point.z - (hit[0].transform.localPosition.z - (hit[0].transform.localScale.z / 2))) - (DoorKnobs[DoorKnobs.Count - 1].doorGapX / 2));
-                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localPosition = new Vector3(hit[0].transform.position.y - DoorKnobs[DoorKnobs.Count - 1].transform.position.y, DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localPosition.y, hit[0].transform.localPosition.z - (hit[0].transform.localScale.z / 2) + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localScale.z / 2) - (DoorKnobs[DoorKnobs.Count - 1].transform.position.z));
+                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localPosition = new Vector3(hit[0].transform.position.x - DoorKnobs[DoorKnobs.Count - 1].transform.position.x, DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localPosition.y, hit[0].transform.localPosition.z - (hit[0].transform.localScale.z / 2) + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localScale.z / 2) - (DoorKnobs[DoorKnobs.Count - 1].transform.position.z));
                                 DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(1).localScale = new Vector3(hit[0].transform.localScale.x, hit[0].transform.localScale.y, (hit[0].transform.localScale.z - (hit[0].point.z - (hit[0].transform.localPosition.z - (hit[0].transform.localScale.z / 2)))) - (DoorKnobs[DoorKnobs.Count - 1].doorGapX / 2));
-                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(1).localPosition = new Vector3(hit[0].transform.position.y - DoorKnobs[DoorKnobs.Count - 1].transform.position.y, DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(1).localPosition.y, hit[0].transform.localPosition.z - (hit[0].transform.localScale.z / 2) + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localScale.z + DoorKnobs[DoorKnobs.Count - 1].doorGapX + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(1).localScale.z / 2) - (DoorKnobs[DoorKnobs.Count - 1].transform.position.z)));
+                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(1).localPosition = new Vector3(hit[0].transform.position.x - DoorKnobs[DoorKnobs.Count - 1].transform.position.x, DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(1).localPosition.y, hit[0].transform.localPosition.z - (hit[0].transform.localScale.z / 2) + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(0).localScale.z + DoorKnobs[DoorKnobs.Count - 1].doorGapX + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(1).localScale.z / 2) - (DoorKnobs[DoorKnobs.Count - 1].transform.position.z)));
 
 
 
-                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localScale = new Vector3(hit[0].transform.localScale.x - (hit[0].point.y - hit[0].transform.localPosition.y + (DoorKnobs[DoorKnobs.Count - 1].doorGapY / 2)), hit[0].transform.localScale.y, hit[0].transform.localScale.z);
-                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localPosition = new Vector3((hit[0].point.y - DoorKnobs[DoorKnobs.Count - 1].transform.position.y) + (DoorKnobs[DoorKnobs.Count - 1].doorGapY / 2) + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localScale.x / 2), DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localPosition.y, hit[0].transform.position.z - DoorKnobs[DoorKnobs.Count - 1].transform.position.z);
+                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localScale = new Vector3((hit[0].point.x - (hit[0].transform.localPosition.x - (hit[0].transform.localScale.x / 2))) - (DoorKnobs[DoorKnobs.Count - 1].doorGapY / 2), hit[0].transform.localScale.y, hit[0].transform.localScale.z);
+                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localPosition = new Vector3((hit[0].point.x - DoorKnobs[DoorKnobs.Count - 1].transform.position.x) - (DoorKnobs[DoorKnobs.Count - 1].doorGapY / 2) - (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localScale.x / 2), DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localPosition.y, hit[0].transform.position.z - DoorKnobs[DoorKnobs.Count - 1].transform.position.z);
                                 DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(3).localScale = new Vector3(hit[0].transform.localScale.x - DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(2).localScale.x - DoorKnobs[DoorKnobs.Count - 1].doorGapY, hit[0].transform.localScale.y, hit[0].transform.localScale.z);
-                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(3).localPosition = new Vector3((hit[0].point.y - DoorKnobs[DoorKnobs.Count - 1].transform.position.y) - (DoorKnobs[DoorKnobs.Count - 1].doorGapY / 2) - (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(3).localScale.x / 2), DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(3).localPosition.y, hit[0].transform.position.z - DoorKnobs[DoorKnobs.Count - 1].transform.position.z);
+                                DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(3).localPosition = new Vector3((hit[0].point.x - DoorKnobs[DoorKnobs.Count - 1].transform.position.x) + (DoorKnobs[DoorKnobs.Count - 1].doorGapY / 2) + (DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(3).localScale.x / 2), DoorKnobs[DoorKnobs.Count - 1].transform.GetChild(3).localPosition.y, hit[0].transform.position.z - DoorKnobs[DoorKnobs.Count - 1].transform.position.z);
                             }
                             else
                             {
@@ -145,14 +150,15 @@ public class MovementController : MonoBehaviour {
 
 
         //Take Door from Wall
+        //Raycast forward. If a Door object is hit, remove it from that location and turn the wall that was there originally back on. Add this door gameobject to the user's list of doors.
         {
             if (Input.GetKeyDown(KeyCode.L))
             {
                 RaycastHit hit;
+                
+                DrawLineRenderer(Color.red);
 
-                Debug.DrawRay(transform.position, transform.GetChild(0).forward * 100, Color.red, 5);
-
-                if (Physics.Raycast(transform.position, transform.GetChild(0).forward, out hit, 100.0f))
+                if (Physics.Raycast(transform.position, transform.GetChild(0).forward, out hit, distanceToInteract))
                 {
                     if (hit.transform.GetComponent<Door>())
                     {
@@ -179,14 +185,15 @@ public class MovementController : MonoBehaviour {
 
 
         //Rotate all Walls behind the Door in front of the Player
+        //Raycast forward. If a Door object is hit then call the RotateRooms function inside the Door.cs script of that door.
         {
             if (Input.GetKeyDown(KeyCode.Q))
             {
                 RaycastHit hit;
+                
+                DrawLineRenderer(Color.blue);
 
-                Debug.DrawRay(transform.position, transform.GetChild(0).forward * 100, Color.blue, 5);
-
-                if (Physics.Raycast(transform.position, transform.GetChild(0).forward, out hit, 100.0f))
+                if (Physics.Raycast(transform.position, transform.GetChild(0).forward, out hit, distanceToInteract))
                 {
                     if (hit.transform.GetComponent<Door>())
                     {
@@ -198,16 +205,19 @@ public class MovementController : MonoBehaviour {
 
 
         //Mirror all Walls behind the Door in front of the Player
+        //Raycast forward. If a Door object is hit then call the MirrorRooms function inside the Door.cs script of that door.
         {
-            if (Input.GetKeyDown(KeyCode.R))
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 RaycastHit hit;
+                
+                DrawLineRenderer(Color.yellow);
 
-                if (Physics.Raycast(transform.position, transform.GetChild(0).forward, out hit, 100.0f))
+                if (Physics.Raycast(transform.position, transform.GetChild(0).forward, out hit, distanceToInteract))
                 {
                     if (hit.transform.GetComponent<Door>())
                     {
-                        //hit.transform.GetComponent<Door>().MirrorRooms();
+                        hit.transform.GetComponent<Door>().MirrorRooms(currentRoom);
                     }
                 }
             }
@@ -219,6 +229,16 @@ public class MovementController : MonoBehaviour {
         if (collision.transform.gameObject.activeSelf == true && collision.transform.tag == "WallDoor")
         {
             currentRoom = collision.transform.parent.GetComponent<Room>();
+        }
+    }
+
+    public void DrawLineRenderer(Color color)
+    {
+        lineRenderer.material.color = color;
+
+        for (int i=0; i<10; i++)
+        {
+            lineRenderer.SetPosition(i, transform.position + (transform.GetChild(0).forward * i));
         }
     }
 }
