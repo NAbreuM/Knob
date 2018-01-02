@@ -1,0 +1,7 @@
+Basically,  I just made some edits to the Seamless Portal extension. To set up a portal, refer to the seamless portal instructions, but use the modified scripts and prefabs in this folder.
+
+Basically the change I made is to the config. Make sure Teleport Settings -> Object to Teleport is set to Target Transform, and is targeting the Player object, not its childed camera object.
+
+Don't set the portal prefabs themselves as the portals in Portal Object Setting, designate their childed Portal Objects instead (To help you find them in the list, it is helpful to rename these in the scene hierarchy). Also I have my portal config and prefabs set up on the Z axis (Seamless demo uses X).
+
+Currently the seamless portal extension is a little unreliable, and seems to have particular trouble with vertical portals.
